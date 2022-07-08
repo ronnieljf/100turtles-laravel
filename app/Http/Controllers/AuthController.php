@@ -4,6 +4,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Validator;
+use OpenApi\Annotations as OA;
+
+    /**
+ *
+ * @OA\Info(
+ *      version="v1",
+ *      title="Core API",
+ *      description="",
+ *      @OA\Contact(
+ *          email="***@***.com"
+ *      )
+ * )
+ * @OA\Server(
+ *      url= L5_SWAGGER_CONST_HOST,
+ *      description="*** API Server"
+ * )
+ * @OA\SecurityScheme(
+ *     type="http",
+ *     description="API token is required to access this API",
+ *     in="header",
+ *     scheme="bearer",
+ *     securityScheme="bearerAuth",
+ * )
+ *
+ */
 
 class AuthController extends Controller
 {
@@ -15,11 +40,32 @@ class AuthController extends Controller
     public function __construct() {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     /**
+     * @OA\Post(
+     *      path="/login",
+     *      operationId="login",
+     *      tags={"Login"},
+     *      summary="Login User",
+     *      description="Returns sesion",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Fail"
+     *      )
+     * )
      */
+   
     public function login(Request $request){
     	$validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -34,9 +80,25 @@ class AuthController extends Controller
         return $this->createNewToken($token);
     }
     /**
-     * Register a User.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *      path="/register",
+     *      operationId="register",
+     *      tags={"Register"},
+     *      summary="Register User",
+     *      description="Returns sesion", 
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     * )
      */
     public function register(Request $request) {
         $validator = Validator::make($request->all(), [
@@ -57,37 +119,83 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
+        /**
+     * @OA\Post(
+     *      path="/logout",
+     *      operationId="logout",
+     *      tags={"Logout"},
+     *      summary="User successfully signed out",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *       ),
+     * 
+     * )
      */
     public function logout() {
         auth()->logout();
         return response()->json(['message' => 'User successfully signed out']);
     }
     /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *      path="/refresh",
+     *      operationId="refresh",
+     *      tags={"Refresh"},
+     *      summary="Refresh Token",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation"
+     *      ),
+     * )
      */
     public function refresh() {
         return $this->createNewToken(auth()->refresh());
     }
     /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Get(
+     *      path="user-profile",
+     *      operationId="userProfile",
+     *      summary="Get user information",
+     *      description="Returns data",
+     *      @OA\Parameter(
+     *          name="id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     * )
      */
     public function userProfile() {
         return response()->json(auth()->user());
     }
     /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *      path="/createnewtoken",
+     *      operationId="createNewToken",
+     *      summary="Create new token",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation"
+     *      ),
+     * )
      */
     protected function createNewToken($token){
         return response()->json([
