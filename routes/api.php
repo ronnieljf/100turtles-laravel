@@ -26,7 +26,11 @@ Route::group([
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
-    Route::get('/user-profile', [AuthController::class, 'userProfile']);  
+    Route::get('/user-profile', [AuthController::class, 'userProfile']);
+    
+    Route::post('/login-wallet', [AuthController::class, 'loginWallet']);
+    Route::post('/save-key', [AuthController::class, 'saveKey']); 
+
     Route::post('/reset-password-request', [PasswordResetRequestController::class, 'sendPasswordResetEmail']);
     Route::post('/change-password', [ChangePasswordController::class, 'passwordResetProcess']);
 });

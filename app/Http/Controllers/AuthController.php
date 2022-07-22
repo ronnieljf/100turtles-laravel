@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\WalletKey;
 use Validator;
 use OpenApi\Annotations as OA;
 
@@ -38,7 +39,7 @@ class AuthController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'loginWallet', 'saveKey']]);
     }
      /**
      * @OA\Post(
@@ -75,6 +76,26 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
         if (! $token = auth()->attempt($validator->validated())) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        return $this->createNewToken($token);
+    }
+    
+    public function loginWallet(Request $request){
+    	$validator = Validator::make($request->all(), [
+            'key' => 'required|string',
+            'type' => 'required|string|min:3',
+            'user_id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+        $wallet = WalletKey::where('key', '=', $request->key)->where('type', '=', $request->type)->where('user_id', '=', $request->user_id)->first();
+        if(empty($wallet)){
+            return response()->json(['error' => 'User not exist'], 401);
+        }
+        $user = User::find($wallet->user_id);  
+        if (! $token = auth()->fromUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         return $this->createNewToken($token);
@@ -116,6 +137,31 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'User successfully registered',
             'user' => $user
+        ], 201);
+    }
+
+    public function saveKey(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email|max:100',
+            'type' => 'required|string|between:2,100',
+            'key' => 'required|string',
+        ]);
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+        $user = User::where('email', '=', $request->email)->first();
+        if(empty($user)){
+            return response()->json('User not exist', 401);
+        }
+        $walletsKeys = new WalletKey();
+        $walletsKeys->user_id = $user->id;
+        $walletsKeys->email = $request->email;
+        $walletsKeys->type = $request->type;
+        $walletsKeys->key = $request->key;
+        $walletsKeys->save(); 
+        return response()->json([
+            'message' => 'Wallets Keys successfully registered',
+            'walletsKeys' => $walletsKeys
         ], 201);
     }
 
