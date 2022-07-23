@@ -85,12 +85,14 @@ class AuthController extends Controller
     	$validator = Validator::make($request->all(), [
             'key' => 'required|string',
             'type' => 'required|string|min:3',
-            'user_id' => 'required|integer',
+            'email' => 'required|email',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-        $wallet = WalletKey::where('key', '=', $request->key)->where('type', '=', $request->type)->where('user_id', '=', $request->user_id)->first();
+        $wallet = WalletKey::where('key', '=', $request->key)
+                            ->where('type', '=', $request->type)
+                            ->where('email', '=', $request->email)->first();
         if(empty($wallet)){
             return response()->json(['error' => 'User not exist'], 401);
         }
