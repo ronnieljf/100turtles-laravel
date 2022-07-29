@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\WalletKey;
 use Validator;
 use OpenApi\Annotations as OA;
+use OpenApi\Attributes\Response;
+use Symfony\Component\Console\Input\Input;
 
     /**
  *
@@ -39,7 +41,7 @@ class AuthController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'loginWallet', 'saveKey']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'loginWallet', 'saveKey', 'editProfile']]);
     }
      /**
      * @OA\Post(
@@ -234,6 +236,86 @@ class AuthController extends Controller
     public function userProfile() {
         return response()->json(auth()->user());
     }
+
+    /**public function editProfile(Request $request){
+        $user = $request->auth()->user();
+        $data = $request->only('name', 'email', 'password', 'telegram');
+        $validator = Validator::make($data, [
+            'name' => 'required|string|between:2,100',
+            'email' => 'required|string|email|max:100|unique:users',
+            'password' => 'required|string|min:6',
+            'telegram' => 'required|string',
+        ]);
+       if($validator->fails()){
+            return response()->json(['error' => $validator->messages()], 200);
+        }
+       $user = $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'telegram' => $request->telegram,
+        ]);
+       return response()->json([
+            'success' => true,
+            'message' => 'User updated sucessfully',
+            'data' => $user
+       ]);
+    }*/
+    public function editProfile(Request $request) {
+        if(! $user = Auth::user()){
+            return response()->json('User profile not found', 401);
+        }
+        if(!empty($request->name)){
+            $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            ]);
+            if($validator->fails()){
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            $user->update([
+                'name' => $request->name,
+            ]);
+        }
+        if(!empty($request->email)){
+            $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email|max:100|unique:users',
+            ]);
+            if($validator->fails()){
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            $user->update([
+                'email' => $request->email,
+            ]);
+        }
+        if(!empty($request->password)){
+            $validator = Validator::make($request->all(), [
+            'password' => 'required|string|min:6|confirmed',
+            ]);
+            if($validator->fails()){
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            $user->update([
+                'password' => bcrypt($request->password),
+            ]);
+        }
+        if(!empty($request->telegram)){
+            $validator = Validator::make($request->all(), [
+            'telegram' => 'required|string',
+            ]);
+            if($validator->fails()){
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            $user->update([
+                'telegram' => $request->telegram,
+            ]);
+        }
+        $response = [
+            'message' => 'User profile update successfully',
+            'id' => $user->id,
+        ]; 
+        return response()->json($response, 201);  
+    }
+
     /**
      * @OA\Post(
      *      path="/createnewtoken",
