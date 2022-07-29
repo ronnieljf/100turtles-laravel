@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -9,7 +11,7 @@ use OpenApi\Annotations as OA;
 use OpenApi\Attributes\Response;
 use Symfony\Component\Console\Input\Input;
 
-    /**
+/**
  *
  * @OA\Info(
  *      version="v1",
@@ -40,10 +42,11 @@ class AuthController extends Controller
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('auth:api', ['except' => ['login', 'register', 'loginWallet', 'saveKey', 'editProfile']]);
     }
-     /**
+    /**
      * @OA\Post(
      *      path="/login",
      *      operationId="login",
@@ -68,23 +71,25 @@ class AuthController extends Controller
      *      )
      * )
      */
-   
-    public function login(Request $request){
-    	$validator = Validator::make($request->all(), [
+
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-        if (! $token = auth()->attempt($validator->validated())) {
+        if (!$token = auth()->attempt($validator->validated())) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         return $this->createNewToken($token);
     }
-    
-    public function loginWallet(Request $request){
-    	$validator = Validator::make($request->all(), [
+
+    public function loginWallet(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'key' => 'required|string',
             'type' => 'required|string|min:3',
             'email' => 'required|email',
@@ -93,13 +98,13 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
         $wallet = WalletKey::where('key', '=', $request->key)
-                            ->where('type', '=', $request->type)
-                            ->where('email', '=', $request->email)->first();
-        if(empty($wallet)){
+            ->where('type', '=', $request->type)
+            ->where('email', '=', $request->email)->first();
+        if (empty($wallet)) {
             return response()->json(['error' => 'User not exist'], 401);
         }
-        $user = User::find($wallet->user_id);  
-        if (! $token = auth()->fromUser($user)) {
+        $user = User::find($wallet->user_id);
+        if (!$token = auth()->fromUser($user)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         return $this->createNewToken($token);
@@ -125,36 +130,38 @@ class AuthController extends Controller
      *      )
      * )
      */
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|confirmed|min:6',
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
         $user = User::create(array_merge(
-                    $validator->validated(),
-                    ['password' => bcrypt($request->password)]
-                ));
+            $validator->validated(),
+            ['password' => bcrypt($request->password)]
+        ));
         return response()->json([
             'message' => 'User successfully registered',
             'user' => $user
         ], 201);
     }
 
-    public function saveKey(Request $request) {
+    public function saveKey(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:100',
             'type' => 'required|string|between:2,100',
             'key' => 'required|string',
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
         $user = User::where('email', '=', $request->email)->first();
-        if(empty($user)){
+        if (empty($user)) {
             return response()->json('User not exist', 401);
         }
         $walletsKeys = new WalletKey();
@@ -162,14 +169,14 @@ class AuthController extends Controller
         $walletsKeys->email = $request->email;
         $walletsKeys->type = $request->type;
         $walletsKeys->key = $request->key;
-        $walletsKeys->save(); 
+        $walletsKeys->save();
         return response()->json([
             'message' => 'Wallets Keys successfully registered',
             'walletsKeys' => $walletsKeys
         ], 201);
     }
 
-        /**
+    /**
      * @OA\Post(
      *      path="/logout",
      *      operationId="logout",
@@ -182,7 +189,8 @@ class AuthController extends Controller
      * 
      * )
      */
-    public function logout() {
+    public function logout()
+    {
         auth()->logout();
         return response()->json(['message' => 'User successfully signed out']);
     }
@@ -198,7 +206,8 @@ class AuthController extends Controller
      *      ),
      * )
      */
-    public function refresh() {
+    public function refresh()
+    {
         return $this->createNewToken(auth()->refresh());
     }
     /**
@@ -233,7 +242,8 @@ class AuthController extends Controller
      *      )
      * )
      */
-    public function userProfile() {
+    public function userProfile()
+    {
         return response()->json(auth()->user());
     }
 
@@ -261,21 +271,28 @@ class AuthController extends Controller
             'data' => $user
        ]);
     }*/
-    public function editProfile(Request $request) {
-        if(! $user = Auth::user()){
+    public function editProfile(Request $request)
+    {
+        if (!$user = Auth::user()) {
             return response()->json('User profile not found', 401);
         }
 
-        if(!empty($request->name)){
+        if (!empty($request->name)) {
             $user->name = $request->name;
         }
-        if(!empty($request->email)){
+        if (!empty($request->email)) {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email|max:100|unique:users',
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors()->toJson(), 400);
+            }
             $user->email = $request->email;
         }
-        if(!empty($request->password)){
+        if (!empty($request->password)) {
             $user->password = bcrypt($request->password);
         }
-        if(!empty($request->telegram)){
+        if (!empty($request->telegram)) {
             $user->telegram = $request->telegram;
         }
         $user->save();
@@ -327,8 +344,8 @@ class AuthController extends Controller
         $response = [
             'message' => 'User profile update successfully',
             'id' => $user->id,
-        ]; 
-        return response()->json($response, 201);  
+        ];
+        return response()->json($response, 201);
     }
 
     /**
@@ -342,7 +359,8 @@ class AuthController extends Controller
      *      ),
      * )
      */
-    protected function createNewToken($token){
+    protected function createNewToken($token)
+    {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
