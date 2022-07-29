@@ -265,50 +265,65 @@ class AuthController extends Controller
         if(! $user = Auth::user()){
             return response()->json('User profile not found', 401);
         }
+
         if(!empty($request->name)){
-            $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            ]);
-            if($validator->fails()){
-                return response()->json($validator->errors()->toJson(), 400);
-            }
-            $user->update([
-                'name' => $request->name,
-            ]);
+            $user->name = $request->name;
         }
         if(!empty($request->email)){
-            $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:100|unique:users',
-            ]);
-            if($validator->fails()){
-                return response()->json($validator->errors()->toJson(), 400);
-            }
-            $user->update([
-                'email' => $request->email,
-            ]);
+            $user->email = $request->email;
         }
         if(!empty($request->password)){
-            $validator = Validator::make($request->all(), [
-            'password' => 'required|string|min:6|confirmed',
-            ]);
-            if($validator->fails()){
-                return response()->json($validator->errors()->toJson(), 400);
-            }
-            $user->update([
-                'password' => bcrypt($request->password),
-            ]);
+            $user->password = bcrypt($request->password);
         }
         if(!empty($request->telegram)){
-            $validator = Validator::make($request->all(), [
-            'telegram' => 'required|string',
-            ]);
-            if($validator->fails()){
-                return response()->json($validator->errors()->toJson(), 400);
-            }
-            $user->update([
-                'telegram' => $request->telegram,
-            ]);
+            $user->telegram = $request->telegram;
         }
+        $user->save();
+
+        // if(!empty($request->name)){
+        //     $validator = Validator::make($request->all(), [
+        //     'name' => 'required|string|max:255',
+        //     ]);
+        //     if($validator->fails()){
+        //         return response()->json($validator->errors()->toJson(), 400);
+        //     }
+        //     $user->update([
+        //         'name' => $request->name,
+        //     ]);
+        // }
+        // if(!empty($request->email)){
+        //     $validator = Validator::make($request->all(), [
+        //     'email' => 'required|string|email|max:100|unique:users',
+        //     ]);
+        //     if($validator->fails()){
+        //         return response()->json($validator->errors()->toJson(), 400);
+        //     }
+        //     $user->update([
+        //         'email' => $request->email,
+        //     ]);
+        // }
+        // if(!empty($request->password)){
+        //     $validator = Validator::make($request->all(), [
+        //     'password' => 'required|string|min:6|confirmed',
+        //     ]);
+        //     if($validator->fails()){
+        //         return response()->json($validator->errors()->toJson(), 400);
+        //     }
+        //     $user->update([
+        //         'password' => bcrypt($request->password),
+        //     ]);
+        // }
+        // if(!empty($request->telegram)){
+        //     $validator = Validator::make($request->all(), [
+        //     'telegram' => 'required|string',
+        //     ]);
+        //     if($validator->fails()){
+        //         return response()->json($validator->errors()->toJson(), 400);
+        //     }
+        //     $user->update([
+        //         'telegram' => $request->telegram,
+        //     ]);
+        // }
         $response = [
             'message' => 'User profile update successfully',
             'id' => $user->id,
