@@ -9,6 +9,47 @@ use App\Models\User;
 
 class ChangePasswordController extends Controller
 {
+    /**
+     * @OA\POST(
+     *      path="/change-password",
+     *      operationId="passwordResetProcess",
+     *      tags={"Reset Password Email"},
+     *      summary="Change password",
+     *      description="Returns a message change password",
+     *      @OA\Parameter(
+     *          name="email",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="email"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="token",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Password has been updated"
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Either your email or token is wrong"
+     *       )
+     * )
+     */  
     public function passwordResetProcess(UpdatePasswordRequest $request){
         return $this->updatePasswordRow($request)->count() > 0 ? $this->resetPassword($request) : $this->tokenNotFoundError();
     }

@@ -19,11 +19,11 @@ class WalletKeyFactory extends Factory
      */
     public function definition()
     {
-       /* return [
+       return [
             'email' => User::inRandomOrder()->first()->email,
             'type' => fake()->sentence,
             'key' => Str::random(20),
             'user_id' => User::inRandomOrder()->first()->id,
-        ];**/
+        ];
     }
 }

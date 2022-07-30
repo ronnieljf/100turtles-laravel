@@ -50,6 +50,22 @@ class AuthController extends Controller
      *      tags={"Login"},
      *      summary="Login User",
      *      description="Returns sesion",
+     *      @OA\Parameter(
+     *          name="email",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="email"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -68,7 +84,6 @@ class AuthController extends Controller
      *      )
      * )
      */
-   
     public function login(Request $request){
     	$validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -82,7 +97,55 @@ class AuthController extends Controller
         }
         return $this->createNewToken($token);
     }
-    
+     /**
+     * @OA\Post(
+     *      path="/login-wallet",
+     *      operationId="loginWallet",
+     *      tags={"Login Wallet"},
+     *      summary="Login Wallet",
+     *      description="Returns sesion wallett",
+     *      @OA\Parameter(
+     *          name="key",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="type",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="email",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="email"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not exist"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Fail"
+     *      )
+     * )
+     */
     public function loginWallet(Request $request){
     	$validator = Validator::make($request->all(), [
             'key' => 'required|string',
@@ -96,7 +159,7 @@ class AuthController extends Controller
                             ->where('type', '=', $request->type)
                             ->where('email', '=', $request->email)->first();
         if(empty($wallet)){
-            return response()->json(['error' => 'User not exist'], 401);
+            return response()->json(['error' => 'User not exist'], 404);
         }
         $user = User::find($wallet->user_id);  
         if (! $token = auth()->fromUser($user)) {
@@ -110,7 +173,39 @@ class AuthController extends Controller
      *      operationId="register",
      *      tags={"Register"},
      *      summary="Register User",
-     *      description="Returns sesion", 
+     *      description="Returns sesion",
+     *      @OA\Parameter(
+     *          name="name",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="email",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="email"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password_confirmation",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ), 
      *      @OA\Response(
      *          response=201,
      *          description="Successful operation",
@@ -143,8 +238,52 @@ class AuthController extends Controller
             'user' => $user
         ], 201);
     }
-
-    public function saveKey(Request $request) {
+     /**
+     * @OA\Post(
+     *      path="/save-key",
+     *      operationId="saveKey",
+     *      tags={"Save Key"},
+     *      summary="Save Wallet Key",
+     *      description="Returns sesion wallet",
+     *      @OA\Parameter(
+     *          name="email",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="email"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="type",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ), 
+     *      @OA\Parameter(
+     *          name="key",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="User not exist"
+     *      )
+     * )
+     */
+        public function saveKey(Request $request) {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:100',
             'type' => 'required|string|between:2,100',
@@ -179,7 +318,6 @@ class AuthController extends Controller
      *          response=201,
      *          description="Successful operation",
      *       ),
-     * 
      * )
      */
     public function logout() {
@@ -208,11 +346,11 @@ class AuthController extends Controller
      *      summary="Get user information",
      *      description="Returns data",
      *      @OA\Parameter(
-     *          name="id",
+     *          name="token",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
-     *              type="integer"
+     *              type="string"
      *          )
      *      ),
      *      @OA\Response(
@@ -236,86 +374,92 @@ class AuthController extends Controller
     public function userProfile() {
         return response()->json(auth()->user());
     }
-
-    /**public function editProfile(Request $request){
-        $user = $request->auth()->user();
-        $data = $request->only('name', 'email', 'password', 'telegram');
-        $validator = Validator::make($data, [
-            'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string|min:6',
-            'telegram' => 'required|string',
-        ]);
-       if($validator->fails()){
-            return response()->json(['error' => $validator->messages()], 200);
-        }
-       $user = $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'telegram' => $request->telegram,
-        ]);
-       return response()->json([
-            'success' => true,
-            'message' => 'User updated sucessfully',
-            'data' => $user
-       ]);
-    }*/
-    public function editProfile(Request $request) {
-        if(! $user = Auth::user()){
+    /**
+     * @OA\PUT(
+     *      path="/edit-profile",
+     *      operationId="editProfile",
+     *      tags={"User Profile"},
+     *      summary="Update user information",
+     *      description="Return user update",
+     *      @OA\Parameter(
+     *          name="name",
+     *          required=false,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="email",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="email"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password",
+     *          required=false,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="telegram",
+     *          required=false,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="User profile update successfully",
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request",
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="User profile not found",
+     *      )
+     * )
+     */
+    public function editProfile(Request $request)
+    {
+       /** @var \App\Models\User $user */
+        if (!$user = Auth::user()) {
             return response()->json('User profile not found', 401);
         }
-        if(!empty($request->name)){
+
+        if (!empty($request->name)) {
+            $user->name = $request->name;
+        }
+        if (!empty($request->email)) {
             $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:100|unique:users',
             ]);
-            if($validator->fails()){
+            if ($validator->fails()) {
                 return response()->json($validator->errors()->toJson(), 400);
             }
-            $user->update([
-                'name' => $request->name,
-            ]);
+            $user->email = $request->email;
         }
-        if(!empty($request->email)){
-            $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:100|unique:users',
-            ]);
-            if($validator->fails()){
-                return response()->json($validator->errors()->toJson(), 400);
-            }
-            $user->update([
-                'email' => $request->email,
-            ]);
+        if (!empty($request->password)) {
+            $user->password = bcrypt($request->password);
         }
-        if(!empty($request->password)){
-            $validator = Validator::make($request->all(), [
-            'password' => 'required|string|min:6|confirmed',
-            ]);
-            if($validator->fails()){
-                return response()->json($validator->errors()->toJson(), 400);
-            }
-            $user->update([
-                'password' => bcrypt($request->password),
-            ]);
+        if (!empty($request->telegram)) {
+            $user->telegram = $request->telegram;
         }
-        if(!empty($request->telegram)){
-            $validator = Validator::make($request->all(), [
-            'telegram' => 'required|string',
-            ]);
-            if($validator->fails()){
-                return response()->json($validator->errors()->toJson(), 400);
-            }
-            $user->update([
-                'telegram' => $request->telegram,
-            ]);
-        }
+        $user->save();
         $response = [
             'message' => 'User profile update successfully',
-            'id' => $user->id,
-        ]; 
-        return response()->json($response, 201);  
+            'user' => $user
+        ];
+        return response()->json($response, 200);
     }
-
+    
     /**
      * @OA\Post(
      *      path="/createnewtoken",

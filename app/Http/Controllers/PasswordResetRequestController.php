@@ -13,6 +13,31 @@ use Illuminate\Http\Request;
 
 class PasswordResetRequestController extends Controller
 {
+    /**
+     * @OA\POST(
+     *      path="/reset-password-request",
+     *      operationId="sendPasswordResetEmail",
+     *      tags={"Reset Password Email"},
+     *      summary="Sent a link to reset email",
+     *      description="Returns a link email",
+     *      @OA\Parameter(
+     *          name="email",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="email"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Check your inbox, we have sent a link to reset email",
+     *       ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Email does not exist"
+     *      )
+     * )
+     */
     public function sendPasswordResetEmail(Request $request){
         // If email does not exist
         if(!$this->validEmail($request->email)) {
