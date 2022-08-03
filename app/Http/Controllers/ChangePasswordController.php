@@ -11,7 +11,7 @@ class ChangePasswordController extends Controller
 {
     /**
      * @OA\POST(
-     *      path="/change-password",
+     *      path="/api/auth/change-password",
      *      operationId="passwordResetProcess",
      *      tags={"Reset Password Email"},
      *      summary="Change password",
@@ -19,15 +19,15 @@ class ChangePasswordController extends Controller
      *      @OA\Parameter(
      *          name="email",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
-     *              type="email"
+     *              type="string"
      *          )
      *      ),
      *      @OA\Parameter(
-     *          name="token",
+     *          name="passwordToken",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
      *              type="string"
      *          )
@@ -35,21 +35,33 @@ class ChangePasswordController extends Controller
      *      @OA\Parameter(
      *          name="password",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
-     *              type="string"
+     *              type="string",
+     *              format="password"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password_confirmation",
+     *          required=true,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string",
+     *              format="password"
      *          )
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Password has been updated"
+     *          description="Password has been updated",
+     *          @OA\JsonContent(),
      *       ),
      *       @OA\Response(
      *          response=422,
-     *          description="Either your email or token is wrong"
+     *          description="Either your email or token is wrong",
+     *          @OA\JsonContent(),
      *       )
      * )
-     */  
+     */
     public function passwordResetProcess(UpdatePasswordRequest $request){
         return $this->updatePasswordRow($request)->count() > 0 ? $this->resetPassword($request) : $this->tokenNotFoundError();
     }

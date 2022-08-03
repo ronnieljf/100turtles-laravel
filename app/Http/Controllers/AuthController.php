@@ -10,27 +10,20 @@ use OpenApi\Attributes\Response;
 use Symfony\Component\Console\Input\Input;
 
     /**
- *
- * @OA\Info(
- *      version="v1",
- *      title="Core API",
- *      description="",
- *      @OA\Contact(
- *          email="***@***.com"
+ * @OA\OpenApi(
+ *      @OA\Info(
+ *          version="v1",
+ *          title="Core API",
+ *          description="Demo List Api",
+ *          @OA\Contact(
+ *              email="alysmaralejandra@gmail.com"
+ *          )
  *      )
  * )
  * @OA\Server(
  *      url= L5_SWAGGER_CONST_HOST,
  *      description="*** API Server"
  * )
- * @OA\SecurityScheme(
- *     type="http",
- *     description="API token is required to access this API",
- *     in="header",
- *     scheme="bearer",
- *     securityScheme="bearerAuth",
- * )
- *
  */
 
 class AuthController extends Controller
@@ -45,43 +38,40 @@ class AuthController extends Controller
     }
      /**
      * @OA\Post(
-     *      path="/login",
+     *      path="/api/auth/login",
      *      operationId="login",
      *      tags={"Login"},
      *      summary="Login User",
      *      description="Returns sesion",
-     *      @OA\Parameter(
-     *          name="email",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="email"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="password",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"email", "password"},
+     *               @OA\Property(property="email", type="email", format="email"),
+     *               @OA\Property(property="password", type="password", format="password")
+     *            ),
+     *        ),
+     *    ),
      *      @OA\Response(
-     *          response=200,
-     *          description="Successful operation",
+     *          response=201,
+     *          description="Login Successfully",
+     *          @OA\JsonContent()
      *       ),
      *      @OA\Response(
-     *          response=400,
-     *          description="Bad Request"
-     *      ),
-     *      @OA\Response(
      *          response=401,
-     *          description="Unauthenticated",
-     *      ),
+     *          description="Unauthorized",
+     *          @OA\JsonContent()
+     *       ),
      *      @OA\Response(
      *          response=422,
-     *          description="Fail"
-     *      )
+     *          description="Unprocessable Entity",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
      * )
      */
     public function login(Request $request){
@@ -99,50 +89,43 @@ class AuthController extends Controller
     }
      /**
      * @OA\Post(
-     *      path="/login-wallet",
+     *      path="/api/auth/login-wallet",
      *      operationId="loginWallet",
      *      tags={"Login Wallet"},
      *      summary="Login Wallet",
      *      description="Returns sesion wallett",
-     *      @OA\Parameter(
-     *          name="key",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="type",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="email",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="email"
-     *          )
-     *      ),
+     *      @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"key","type","email"},
+     *               @OA\Property(property="key", type="string"),
+     *               @OA\Property(property="type", type="string"),
+     *               @OA\Property(property="email", type="email", format="email"),
+     *            ),
+     *        ),
+     *    ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *          @OA\JsonContent()
      *       ),
      *      @OA\Response(
      *          response=404,
-     *          description="User not exist"
+     *          description="User not exist",
+     *          @OA\JsonContent()
      *      ),
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated",
+     *          @OA\JsonContent()
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="Fail"
+     *          description="Fail",
+     *          @OA\JsonContent()
      *      )
      * )
      */
@@ -169,56 +152,67 @@ class AuthController extends Controller
     }
     /**
      * @OA\Post(
-     *      path="/register",
-     *      operationId="register",
-     *      tags={"Register"},
-     *      summary="Register User",
-     *      description="Returns sesion",
+     * path="/api/auth/register",
+     *   tags={"Register"},
+     *   summary="Register",
+     *   operationId="register",
+     *
+     *  @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *  @OA\Parameter(
+     *      name="email",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *   @OA\Parameter(
+     *      name="password",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
      *      @OA\Parameter(
-     *          name="name",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="email",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="email"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="password",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="password_confirmation",
-     *          required=true,
-     *          in="path",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ), 
-     *      @OA\Response(
-     *          response=201,
-     *          description="Successful operation",
-     *       ),
-     *      @OA\Response(
-     *          response=400,
-     *          description="Bad Request"
-     *      ),
+     *      name="password_confirmation",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=201,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
      *      @OA\Response(
      *          response=403,
      *          description="Forbidden"
      *      )
-     * )
+     *)
      */
     public function register(Request $request) {
         $validator = Validator::make($request->all(), [
@@ -238,9 +232,9 @@ class AuthController extends Controller
             'user' => $user
         ], 201);
     }
-     /**
+    /**
      * @OA\Post(
-     *      path="/save-key",
+     *      path="/api/auth/save-key",
      *      operationId="saveKey",
      *      tags={"Save Key"},
      *      summary="Save Wallet Key",
@@ -248,15 +242,16 @@ class AuthController extends Controller
      *      @OA\Parameter(
      *          name="email",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
-     *              type="email"
+     *              type="string",
+     *              format="email"
      *          )
      *      ),
      *      @OA\Parameter(
      *          name="type",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
      *              type="string"
      *          )
@@ -264,7 +259,7 @@ class AuthController extends Controller
      *      @OA\Parameter(
      *          name="key",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
      *              type="string"
      *          )
@@ -272,6 +267,9 @@ class AuthController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="Successful operation",
+     *           @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
      *       ),
      *      @OA\Response(
      *          response=400,
@@ -307,17 +305,27 @@ class AuthController extends Controller
             'walletsKeys' => $walletsKeys
         ], 201);
     }
-
-        /**
+    /**
      * @OA\Post(
-     *      path="/logout",
+     *      path="/api/auth/logout",
      *      operationId="logout",
      *      tags={"Logout"},
      *      summary="User successfully signed out",
+     *      security={ {"bearer": {} }},
+     *     @OA\Parameter(
+     *          name="token",
+     *          required=true,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=201,
      *          description="Successful operation",
+     *          @OA\JsonContent()
      *       ),
+     * 
      * )
      */
     public function logout() {
@@ -326,13 +334,22 @@ class AuthController extends Controller
     }
     /**
      * @OA\Post(
-     *      path="/refresh",
+     *      path="/api/auth/refresh",
      *      operationId="refresh",
      *      tags={"Refresh"},
      *      summary="Refresh Token",
+     *      @OA\Parameter(
+     *          name="token",
+     *          required=true,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=201,
-     *          description="Successful operation"
+     *          description="Successful operation",
+     *          @OA\JsonContent()
      *      ),
      * )
      */
@@ -341,14 +358,15 @@ class AuthController extends Controller
     }
     /**
      * @OA\Get(
-     *      path="user-profile",
+     *      path="/api/auth/user-profile",
      *      operationId="userProfile",
+     *      tags={"User Profile"},
      *      summary="Get user information",
      *      description="Returns data",
      *      @OA\Parameter(
      *          name="token",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
      *              type="string"
      *          )
@@ -376,54 +394,68 @@ class AuthController extends Controller
     }
     /**
      * @OA\PUT(
-     *      path="/edit-profile",
+     *      path="/api/auth/edit-profile",
      *      operationId="editProfile",
-     *      tags={"User Profile"},
+     *      tags={"Edit Profile"},
      *      summary="Update user information",
      *      description="Return user update",
+     *      security={ {"bearer": {} }},
      *      @OA\Parameter(
      *          name="name",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
      *              type="string"
      *          )
      *      ),
      *      @OA\Parameter(
      *          name="email",
-     *          required=true,
-     *          in="path",
+     *          required=false,
+     *          in="query",
      *          @OA\Schema(
-     *              type="email"
+     *              type="string",
+     *              format="email"
      *          )
      *      ),
      *      @OA\Parameter(
      *          name="password",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
-     *              type="string"
+     *              type="string",
+     *              format="password"
      *          )
      *      ),
      *      @OA\Parameter(
      *          name="telegram",
      *          required=false,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
      *              type="string"
+     *          )
+     *      ),
+     *       @OA\Parameter(
+     *          name="token",
+     *          required=true,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string",
      *          )
      *      ),
      *      @OA\Response(
      *          response=200,
      *          description="User profile update successfully",
+     *          @OA\JsonContent()
      *       ),
      *      @OA\Response(
      *          response=400,
      *          description="Bad Request",
+     *          @OA\JsonContent()
      *      ),
      *      @OA\Response(
      *          response=401,
      *          description="User profile not found",
+     *          @OA\JsonContent()
      *      )
      * )
      */
@@ -459,7 +491,6 @@ class AuthController extends Controller
         ];
         return response()->json($response, 200);
     }
-    
     /**
      * @OA\Post(
      *      path="/createnewtoken",

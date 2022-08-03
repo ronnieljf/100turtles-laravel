@@ -2,20 +2,20 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Core API",
-        "description": "",
+        "description": "Demo List Api",
         "contact": {
-            "email": "***@***.com"
+            "email": "alysmaralejandra@gmail.com"
         },
         "version": "v1"
     },
     "servers": [
         {
-            "url": "http://my-default-host.com",
+            "url": "http://localhost:8000",
             "description": "*** API Server"
         }
     ],
     "paths": {
-        "/login": {
+        "/api/auth/login": {
             "post": {
                 "tags": [
                     "Login"
@@ -23,41 +23,67 @@
                 "summary": "Login User",
                 "description": "Returns sesion",
                 "operationId": "login",
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "email"
-                        }
-                    },
-                    {
-                        "name": "password",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "email",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "password",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
                         }
                     }
-                ],
+                },
                 "responses": {
-                    "200": {
-                        "description": "Successful operation"
-                    },
-                    "400": {
-                        "description": "Bad Request"
+                    "201": {
+                        "description": "Login Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Fail"
+                        "description": "Unprocessable Entity",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
                     }
                 }
             }
         },
-        "/login-wallet": {
+        "/api/auth/login-wallet": {
             "post": {
                 "tags": [
                     "Login Wallet"
@@ -65,60 +91,82 @@
                 "summary": "Login Wallet",
                 "description": "Returns sesion wallett",
                 "operationId": "loginWallet",
-                "parameters": [
-                    {
-                        "name": "key",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "type",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "email",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "email"
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "key",
+                                    "type",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "email",
+                                        "format": "email"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
-                        "description": "Successful operation"
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "404": {
-                        "description": "User not exist"
+                        "description": "User not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Fail"
+                        "description": "Fail",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 }
             }
         },
-        "/register": {
+        "/api/auth/register": {
             "post": {
                 "tags": [
                     "Register"
                 ],
-                "summary": "Register User",
-                "description": "Returns sesion",
+                "summary": "Register",
                 "operationId": "register",
                 "parameters": [
                     {
                         "name": "name",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -126,15 +174,15 @@
                     },
                     {
                         "name": "email",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "email"
+                            "type": "string"
                         }
                     },
                     {
                         "name": "password",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -142,7 +190,7 @@
                     },
                     {
                         "name": "password_confirmation",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -151,10 +199,19 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Successful operation"
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
                     },
                     "400": {
                         "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
                     },
                     "403": {
                         "description": "Forbidden"
@@ -162,7 +219,7 @@
                 }
             }
         },
-        "/save-key": {
+        "/api/auth/save-key": {
             "post": {
                 "tags": [
                     "Save Key"
@@ -173,15 +230,16 @@
                 "parameters": [
                     {
                         "name": "email",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "email"
+                            "type": "string",
+                            "format": "email"
                         }
                     },
                     {
                         "name": "type",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -189,7 +247,7 @@
                     },
                     {
                         "name": "key",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -198,7 +256,10 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Successful operation"
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {}
+                        }
                     },
                     "400": {
                         "description": "Bad Request"
@@ -209,43 +270,81 @@
                 }
             }
         },
-        "/logout": {
+        "/api/auth/logout": {
             "post": {
                 "tags": [
                     "Logout"
                 ],
                 "summary": "User successfully signed out",
                 "operationId": "logout",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
-                        "description": "Successful operation"
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
             }
         },
-        "/refresh": {
+        "/api/auth/refresh": {
             "post": {
                 "tags": [
                     "Refresh"
                 ],
                 "summary": "Refresh Token",
                 "operationId": "refresh",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
-                        "description": "Successful operation"
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 }
             }
         },
-        "user-profile": {
+        "/api/auth/user-profile": {
             "get": {
+                "tags": [
+                    "User Profile"
+                ],
                 "summary": "Get user information",
                 "description": "Returns data",
                 "operationId": "userProfile",
                 "parameters": [
                     {
                         "name": "token",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -268,10 +367,10 @@
                 }
             }
         },
-        "/edit-profile": {
+        "/api/auth/edit-profile": {
             "put": {
                 "tags": [
-                    "User Profile"
+                    "Edit Profile"
                 ],
                 "summary": "Update user information",
                 "description": "Return user update",
@@ -279,7 +378,7 @@
                 "parameters": [
                     {
                         "name": "name",
-                        "in": "path",
+                        "in": "query",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -287,24 +386,34 @@
                     },
                     {
                         "name": "email",
-                        "in": "path",
-                        "required": true,
+                        "in": "query",
+                        "required": false,
                         "schema": {
-                            "type": "email"
+                            "type": "string",
+                            "format": "email"
                         }
                     },
                     {
                         "name": "password",
-                        "in": "path",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "password"
+                        }
+                    },
+                    {
+                        "name": "telegram",
+                        "in": "query",
                         "required": false,
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "telegram",
-                        "in": "path",
-                        "required": false,
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
                         "schema": {
                             "type": "string"
                         }
@@ -312,15 +421,35 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User profile update successfully"
+                        "description": "User profile update successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "401": {
-                        "description": "User profile not found"
+                        "description": "User profile not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
             }
         },
         "/createnewtoken": {
@@ -334,7 +463,7 @@
                 }
             }
         },
-        "/change-password": {
+        "/api/auth/change-password": {
             "post": {
                 "tags": [
                     "Reset Password Email"
@@ -345,15 +474,15 @@
                 "parameters": [
                     {
                         "name": "email",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "email"
+                            "type": "string"
                         }
                     },
                     {
-                        "name": "token",
-                        "in": "path",
+                        "name": "passwordToken",
+                        "in": "query",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -361,24 +490,44 @@
                     },
                     {
                         "name": "password",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "password"
+                        }
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "password"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Password has been updated"
+                        "description": "Password has been updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Either your email or token is wrong"
+                        "description": "Either your email or token is wrong",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 }
             }
         },
-        "/reset-password-request": {
+        "/api/auth/reset-password-request": {
             "post": {
                 "tags": [
                     "Reset Password Email"
@@ -389,31 +538,31 @@
                 "parameters": [
                     {
                         "name": "email",
-                        "in": "path",
+                        "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "email"
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Check your inbox, we have sent a link to reset email"
+                        "description": "Check your inbox, we have sent a link to reset email",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Email does not exist"
+                        "description": "Email does not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 }
-            }
-        }
-    },
-    "components": {
-        "securitySchemes": {
-            "bearerAuth": {
-                "type": "http",
-                "description": "API token is required to access this API",
-                "in": "header",
-                "scheme": "bearer"
             }
         }
     }

@@ -15,7 +15,7 @@ class PasswordResetRequestController extends Controller
 {
     /**
      * @OA\POST(
-     *      path="/reset-password-request",
+     *      path="/api/auth/reset-password-request",
      *      operationId="sendPasswordResetEmail",
      *      tags={"Reset Password Email"},
      *      summary="Sent a link to reset email",
@@ -23,18 +23,20 @@ class PasswordResetRequestController extends Controller
      *      @OA\Parameter(
      *          name="email",
      *          required=true,
-     *          in="path",
+     *          in="query",
      *          @OA\Schema(
-     *              type="email"
+     *              type="string"
      *          )
      *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Check your inbox, we have sent a link to reset email",
+     *          @OA\JsonContent()
      *       ),
      *      @OA\Response(
      *          response=404,
-     *          description="Email does not exist"
+     *          description="Email does not exist",
+     *          @OA\JsonContent()
      *      )
      * )
      */
